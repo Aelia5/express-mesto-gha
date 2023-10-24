@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const app = express();
-const router = require('./routes/users');
+const userRouter = require('./routes/users');
+const cardRouter = require('./routes/cards');
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
@@ -19,7 +20,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/users', router);
+app.use('/users', userRouter);
+app.use('/cards', cardRouter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
