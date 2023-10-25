@@ -43,7 +43,13 @@ module.exports.deleteCard = (req, res) => {
         res.send(card);
       }
     })
-    .catch(() => sendDefaultError(res));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        sendValidationError(res);
+      } else {
+        sendDefaultError(res);
+      }
+    });
 };
 
 module.exports.putLike = (req, res) => {
@@ -60,14 +66,13 @@ module.exports.putLike = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         sendValidationError(res);
       } else {
         sendDefaultError(res);
       }
     });
 };
-
 module.exports.deleteLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -82,7 +87,7 @@ module.exports.deleteLike = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         sendValidationError(res);
       } else {
         sendDefaultError(res);

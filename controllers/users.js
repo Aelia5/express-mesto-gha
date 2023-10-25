@@ -43,7 +43,13 @@ module.exports.getUserById = (req, res) => {
         res.send(user);
       }
     })
-    .catch(() => sendDefaultError(res));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        sendValidationError(res);
+      } else {
+        sendDefaultError(res);
+      }
+    });
 };
 
 module.exports.updateUser = (req, res) => {

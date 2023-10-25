@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
-app.get('*', (req, res) => {
+app.use('*', (req, res) => {
   const ERROR_CODE = 404;
   res.status(ERROR_CODE).send({ message: 'Такой путь не существует' });
 });
