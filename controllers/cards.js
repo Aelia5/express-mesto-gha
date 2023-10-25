@@ -1,15 +1,18 @@
 const Card = require('../models/card');
 
 function sendValidationError(res) {
-  res.status(400).send({ message: 'Отправлены некорректные данные' });
+  const ERROR_CODE = 400;
+  res.status(ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
 }
 
 function sendNotFoundError(res) {
-  res.status(404).send({ message: 'Такой карточки не существует' });
+  const ERROR_CODE = 404;
+  res.status(ERROR_CODE).send({ message: 'Такой карточки не существует' });
 }
 
 function sendDefaultError(res) {
-  res.status(500).send({ message: 'Произошла ошибка' });
+  const ERROR_CODE = 500;
+  res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
 }
 
 module.exports.createCard = (req, res) => {
@@ -37,7 +40,7 @@ module.exports.deleteCard = (req, res) => {
       if (!card) {
         sendNotFoundError(res);
       } else {
-        res.send({ data: card });
+        res.send(card);
       }
     })
     .catch(() => sendDefaultError(res));
@@ -53,7 +56,7 @@ module.exports.putLike = (req, res) => {
       if (!card) {
         sendNotFoundError(res);
       } else {
-        res.send({ data: card });
+        res.send(card);
       }
     })
     .catch((err) => {
@@ -75,7 +78,7 @@ module.exports.deleteLike = (req, res) => {
       if (!card) {
         sendNotFoundError(res);
       } else {
-        res.send({ data: card });
+        res.send(card);
       }
     })
     .catch((err) => {

@@ -22,6 +22,10 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
+app.get('*', (req, res) => {
+  const ERROR_CODE = 404;
+  res.status(ERROR_CODE).send({ message: 'Такой путь не существует' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

@@ -1,15 +1,18 @@
 const User = require('../models/user');
 
 function sendValidationError(res) {
-  res.status(400).send({ message: 'Отправлены некорректные данные' });
+  const ERROR_CODE = 400;
+  res.status(ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
 }
 
 function sendNotFoundError(res) {
-  res.status(404).send({ message: 'Такого пользователя не существует' });
+  const ERROR_CODE = 404;
+  res.status(ERROR_CODE).send({ message: 'Такого пользователя не существует' });
 }
 
 function sendDefaultError(res) {
-  res.status(500).send({ message: 'Произошла ошибка' });
+  const ERROR_CODE = 500;
+  res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
 }
 
 module.exports.createUser = (req, res) => {
