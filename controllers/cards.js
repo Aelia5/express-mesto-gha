@@ -1,22 +1,46 @@
 const Card = require('../models/card');
 
+function sendValidationError(res) {
+  res.status(400).send({ message: 'Отправлены некорректные данные' });
+}
+
+function sendNotFoundError(res) {
+  res.status(404).send({ message: 'Такой карточки не существует' });
+}
+
+function sendDefaultError(res) {
+  res.status(500).send({ message: 'Произошла ошибка' });
+}
+
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка', err }));
+    .then((card) => res.send(card))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        sendValidationError(res);
+      } else {
+        sendDefaultError(res);
+      }
+    });
 };
 
 module.exports.getCards = (req, res) => {
-  Card.find({})
-    .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка', err }));
+  Card.find({}).populate('owner')
+    .then((cards) => res.send(cards))
+    .catch(() => sendDefaultError(res));
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка', err }));
+    .then((card) => {
+      if (!card) {
+        sendNotFoundError(res);
+      } else {
+        res.send({ data: card });
+      }
+    })
+    .catch(() => sendDefaultError(res));
 };
 
 module.exports.putLike = (req, res) => {
@@ -25,8 +49,20 @@ module.exports.putLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка', err }));
+    .then((card) => {
+      if (!card) {
+        sendNotFoundError(res);
+      } else {
+        res.send({ data: card });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        sendValidationError(res);
+      } else {
+        sendDefaultError(res);
+      }
+    });
 };
 
 module.exports.deleteLike = (req, res) => {
@@ -35,6 +71,18 @@ module.exports.deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка', err }));
+    .then((card) => {
+      if (!card) {
+        sendNotFoundError(res);
+      } else {
+        res.send({ data: card });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        sendValidationError(res);
+      } else {
+        sendDefaultError(res);
+      }
+    });
 };
