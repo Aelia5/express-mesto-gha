@@ -1,19 +1,8 @@
 const User = require('../models/user');
 
-function sendValidationError(res) {
-  const ERROR_CODE = 400;
-  res.status(ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
-}
+const { sendValidationError, sendNotFoundError, sendDefaultError } = require('../utils/utils');
 
-function sendNotFoundError(res) {
-  const ERROR_CODE = 404;
-  res.status(ERROR_CODE).send({ message: 'Такого пользователя не существует' });
-}
-
-function sendDefaultError(res) {
-  const ERROR_CODE = 500;
-  res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
-}
+const notFoundMessage = 'Такого пользователя не существует';
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
@@ -38,7 +27,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        sendNotFoundError(res);
+        sendNotFoundError(res, notFoundMessage);
       } else {
         res.send(user);
       }
@@ -60,7 +49,7 @@ module.exports.updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        sendNotFoundError(res);
+        sendNotFoundError(res, notFoundMessage);
       } else {
         res.send(user);
       }
@@ -82,7 +71,7 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        sendNotFoundError(res);
+        sendNotFoundError(res, notFoundMessage);
       } else {
         res.send(user);
       }

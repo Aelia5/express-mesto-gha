@@ -1,4 +1,6 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const { PORT = 3000 } = process.env;
 const bodyParser = require('body-parser');
@@ -8,7 +10,19 @@ const app = express();
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
+const { sendNotFoundError } = require('./utils/utils');
+
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+
+app.use(limiter);
+app.use(helmet());
 
 app.use(bodyParser.json());
 
@@ -23,8 +37,7 @@ app.use((req, res, next) => {
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('*', (req, res) => {
-  const ERROR_CODE = 404;
-  res.status(ERROR_CODE).send({ message: 'Такой путь не существует' });
+  sendNotFoundError(res, 'Такой путь не существует');
 });
 
 app.listen(PORT, () => {

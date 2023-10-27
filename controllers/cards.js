@@ -1,19 +1,8 @@
 const Card = require('../models/card');
 
-function sendValidationError(res) {
-  const ERROR_CODE = 400;
-  res.status(ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
-}
+const { sendValidationError, sendNotFoundError, sendDefaultError } = require('../utils/utils');
 
-function sendNotFoundError(res) {
-  const ERROR_CODE = 404;
-  res.status(ERROR_CODE).send({ message: 'Такой карточки не существует' });
-}
-
-function sendDefaultError(res) {
-  const ERROR_CODE = 500;
-  res.status(ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
-}
+const notFoundMessage = 'Такой карточки не существует';
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
@@ -38,7 +27,7 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        sendNotFoundError(res);
+        sendNotFoundError(res, notFoundMessage);
       } else {
         res.send(card);
       }
@@ -60,7 +49,7 @@ module.exports.putLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        sendNotFoundError(res);
+        sendNotFoundError(res, notFoundMessage);
       } else {
         res.send(card);
       }
@@ -81,7 +70,7 @@ module.exports.deleteLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        sendNotFoundError(res);
+        sendNotFoundError(res, notFoundMessage);
       } else {
         res.send(card);
       }
