@@ -20,7 +20,7 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       let error;
       if (err.name === 'ValidationError') {
-        error = new ValidationError(validationErrorMessage);
+        error = new ValidationError(err.message);
       } else {
         error = new DefaultError(defaultErrorMessage);
       }

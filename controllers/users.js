@@ -17,6 +17,9 @@ const notFoundMessage = 'Такой пользователь не существ
 const unauthorizedMessage = 'Неправильные почта или пароль';
 
 module.exports.createUser = (req, res, next) => {
+  if (!req.body.password || req.body.password.length < 7) {
+    throw new ValidationError('Минимальная длина пароля: 7 символов');
+  }
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
       User.create({
@@ -32,7 +35,7 @@ module.exports.createUser = (req, res, next) => {
           if (err.code === 11000) {
             error = new ConflictError(conflictMessage);
           } else if (err.name === 'ValidationError') {
-            error = new ValidationError(validationErrorMessage);
+            error = new ValidationError(err.message);
           } else {
             error = new DefaultError(defaultErrorMessage);
           }
@@ -64,7 +67,7 @@ module.exports.getUserById = (req, res, next) => {
       if (err.statusCode) {
         error = err;
       } else if (err.name === 'CastError') {
-        error = new ValidationError(validationErrorMessage);
+        error = new ValidationError(err.message);
       } else {
         error = new DefaultError(defaultErrorMessage);
       }
@@ -100,8 +103,8 @@ module.exports.updateUser = (req, res, next) => {
       let error;
       if (err.statusCode) {
         error = err;
-      } else if (err.name === 'CastError') {
-        error = new ValidationError(validationErrorMessage);
+      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
+        error = new ValidationError(err.message || validationErrorMessage);
       } else {
         error = new DefaultError(defaultErrorMessage);
       }
@@ -126,8 +129,8 @@ module.exports.updateAvatar = (req, res, next) => {
       let error;
       if (err.statusCode) {
         error = err;
-      } else if (err.name === 'CastError') {
-        error = new ValidationError(validationErrorMessage);
+      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
+        error = new ValidationError(err.message || validationErrorMessage);
       } else {
         error = new DefaultError(defaultErrorMessage);
       }
@@ -162,8 +165,6 @@ module.exports.login = (req, res, next) => {
       let error;
       if (err.statusCode) {
         error = err;
-      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
-        error = new ValidationError(validationErrorMessage);
       } else {
         error = new DefaultError(defaultErrorMessage);
       }
