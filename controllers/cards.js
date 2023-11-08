@@ -3,7 +3,7 @@ const Card = require('../models/card');
 const ValidationError = require('../errors/validation-err');
 const DefaultError = require('../errors/default-err');
 const NotFoundError = require('../errors/not-found-err');
-const UnauthorizedError = require('../errors/unauthorized-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 const {
   validationErrorMessage,
@@ -11,7 +11,7 @@ const {
 } = require('../utils/constants');
 
 const notFoundMessage = 'Такой карточки не существует';
-const unauthorizedMessage = 'Вы не можете удалить чужую карточку';
+const forbiddenMessage = 'Вы не можете удалить чужую карточку';
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -43,7 +43,7 @@ module.exports.deleteCard = (req, res, next) => {
       if (!card) {
         throw new NotFoundError(notFoundMessage);
       } else if (card.owner.toString() !== req.user._id) {
-        throw new UnauthorizedError(unauthorizedMessage);
+        throw new ForbiddenError(forbiddenMessage);
       } else {
         Card.findByIdAndRemove(card._id)
           .then(() => res.send(card));

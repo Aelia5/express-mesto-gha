@@ -23,7 +23,7 @@ router.patch('/me', celebrate({
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     user: Joi.string().alphanum().length(24),
-    avatar: Joi.string().required,
+    avatar: Joi.string().required().regex(/https?:\/\/[a-z0-9\-._~:/?#[\]@!$&*+,;=]{4,1000}/i),
   }),
 }), updateAvatar);
 

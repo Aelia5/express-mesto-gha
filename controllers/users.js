@@ -156,7 +156,13 @@ module.exports.login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
-      }).end();
+      }).send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch((err) => {
       let error;
