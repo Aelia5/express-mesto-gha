@@ -1,4 +1,3 @@
-
 const Card = require('../models/card');
 
 const ValidationError = require('../errors/validation-err');

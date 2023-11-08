@@ -1,4 +1,4 @@
-const { VALIDATION_ERROR_CODE, UNAUTHORIZED_ERROR_CODE, NOT_FOUND_ERROR_CODE, DEFAULT_ERROR_CODE } = require('./constants');
+const { VALIDATION_ERROR_CODE, NOT_FOUND_ERROR_CODE, DEFAULT_ERROR_CODE } = require('./constants');
 
 module.exports.sendValidationError = (res) => {
   res.status(VALIDATION_ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
