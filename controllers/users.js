@@ -17,9 +17,6 @@ const notFoundMessage = 'Такой пользователь не существ
 const unauthorizedMessage = 'Неправильные почта или пароль';
 
 module.exports.createUser = (req, res, next) => {
-  if (!req.body.password || req.body.password.length < 7) {
-    throw new ValidationError('Минимальная длина пароля: 7 символов');
-  }
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
       User.create({
@@ -29,7 +26,7 @@ module.exports.createUser = (req, res, next) => {
         email: req.body.email,
         password: hash,
       })
-        .then((user) => res.send(user))
+        .then((user) => User.findById(user._id)).then((user) => res.send(user))
         .catch((err) => {
           let error;
           if (err.code === 11000) {
