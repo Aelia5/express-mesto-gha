@@ -6,15 +6,10 @@ const {
 
 router.get('/', getUsers);
 
-router.get('/me', celebrate({
-  body: Joi.object().keys({
-    user: Joi.string().alphanum().length(24),
-  }),
-}), getCurrentUser);
+router.get('/me', getCurrentUser);
 
 router.patch('/me', celebrate({
   body: Joi.object().keys({
-    user: Joi.string().alphanum().length(24),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
   }),
@@ -22,14 +17,13 @@ router.patch('/me', celebrate({
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    user: Joi.string().alphanum().length(24),
-    avatar: Joi.string().required().regex(/https?:\/\/[a-z0-9\-._~:/?#[\]@!$&*+,;=]{4,1000}/i),
+    avatar: Joi.string().required().regex(/https?:\/\/[a-z0-9\-_.]{1,30}\.[a-z0-9.]{2,6}[a-z0-9\-._~:?#[\]/@!$&*+,;=]{0,1000}/i),
   }),
 }), updateAvatar);
 
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24),
+    userId: Joi.string().length(24).hex().required(),
   }),
 }), getUserById);
 

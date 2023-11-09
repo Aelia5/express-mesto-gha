@@ -1,13 +1,11 @@
 const Card = require('../models/card');
 
 const ValidationError = require('../errors/validation-err');
-const DefaultError = require('../errors/default-err');
 const NotFoundError = require('../errors/not-found-err');
 const ForbiddenError = require('../errors/forbidden-err');
 
 const {
   validationErrorMessage,
-  defaultErrorMessage,
 } = require('../utils/constants');
 
 const notFoundMessage = 'Такой карточки не существует';
@@ -18,22 +16,19 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
     .catch((err) => {
-      let error;
       if (err.name === 'ValidationError') {
-        error = new ValidationError(err.message);
+        next(new ValidationError(validationErrorMessage));
       } else {
-        error = new DefaultError(defaultErrorMessage);
+        next(err);
       }
-      next(error);
     });
 };
 
 module.exports.getCards = (req, res, next) => {
   Card.find({}).populate('owner')
     .then((cards) => res.send(cards))
-    .catch(() => {
-      const error = new DefaultError(defaultErrorMessage);
-      next(error);
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -46,19 +41,16 @@ module.exports.deleteCard = (req, res, next) => {
         throw new ForbiddenError(forbiddenMessage);
       } else {
         Card.findByIdAndRemove(card._id)
-          .then(() => res.send(card));
+          .then(() => res.send(card))
+          .catch(next);
       }
     })
     .catch((err) => {
-      let error;
-      if (err.statusCode) {
-        error = err;
-      } else if (err.name === 'CastError') {
-        error = new ValidationError(validationErrorMessage);
+      if (err.name === 'CastError') {
+        next(new ValidationError(validationErrorMessage));
       } else {
-        error = new DefaultError(defaultErrorMessage);
+        next(err);
       }
-      next(error);
     });
 };
 
@@ -76,15 +68,11 @@ module.exports.putLike = (req, res, next) => {
       }
     })
     .catch((err) => {
-      let error;
-      if (err.statusCode) {
-        error = err;
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
-        error = new ValidationError(validationErrorMessage);
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new ValidationError(validationErrorMessage));
       } else {
-        error = new DefaultError(defaultErrorMessage);
+        next(err);
       }
-      next(error);
     });
 };
 module.exports.deleteLike = (req, res, next) => {
@@ -101,14 +89,10 @@ module.exports.deleteLike = (req, res, next) => {
       }
     })
     .catch((err) => {
-      let error;
-      if (err.statusCode) {
-        error = err;
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
-        error = new ValidationError(validationErrorMessage);
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new ValidationError(validationErrorMessage));
       } else {
-        error = new DefaultError(defaultErrorMessage);
+        next(err);
       }
-      next(error);
     });
 };

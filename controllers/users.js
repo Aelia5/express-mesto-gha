@@ -3,14 +3,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const ConflictError = require('../errors/conflict-err');
 const ValidationError = require('../errors/validation-err');
-const DefaultError = require('../errors/default-err');
 const NotFoundError = require('../errors/not-found-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
 
 const {
   conflictMessage,
   validationErrorMessage,
-  defaultErrorMessage,
 } = require('../utils/constants');
 
 const notFoundMessage = 'Такой пользователь не существует';
@@ -26,17 +24,21 @@ module.exports.createUser = (req, res, next) => {
         email: req.body.email,
         password: hash,
       })
-        .then((user) => User.findById(user._id)).then((user) => res.send(user))
+        .then((user) => res.send({
+          _id: user._id,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        }))
         .catch((err) => {
-          let error;
           if (err.code === 11000) {
-            error = new ConflictError(conflictMessage);
+            next(new ConflictError(conflictMessage));
           } else if (err.name === 'ValidationError') {
-            error = new ValidationError(err.message);
+            next(new ValidationError(err.message));
           } else {
-            error = new DefaultError(defaultErrorMessage);
+            next(err);
           }
-          next(error);
         });
     });
 };
@@ -44,9 +46,8 @@ module.exports.createUser = (req, res, next) => {
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => {
-      const error = new DefaultError(defaultErrorMessage);
-      next(error);
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -60,15 +61,11 @@ module.exports.getUserById = (req, res, next) => {
       }
     })
     .catch((err) => {
-      let error;
-      if (err.statusCode) {
-        error = err;
-      } else if (err.name === 'CastError') {
-        error = new ValidationError(err.message);
+      if (err.name === 'CastError') {
+        next(new ValidationError(err.message));
       } else {
-        error = new DefaultError(defaultErrorMessage);
+        next(err);
       }
-      next(error);
     });
 };
 
@@ -77,9 +74,8 @@ module.exports.getCurrentUser = (req, res, next) => {
     .then((user) => {
       res.send(user);
     })
-    .catch(() => {
-      const error = new DefaultError(defaultErrorMessage);
-      next(error);
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -97,15 +93,11 @@ module.exports.updateUser = (req, res, next) => {
       }
     })
     .catch((err) => {
-      let error;
-      if (err.statusCode) {
-        error = err;
-      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
-        error = new ValidationError(err.message || validationErrorMessage);
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        next(new ValidationError(err.message || validationErrorMessage));
       } else {
-        error = new DefaultError(defaultErrorMessage);
+        next(err);
       }
-      next(error);
     });
 };
 
@@ -123,15 +115,11 @@ module.exports.updateAvatar = (req, res, next) => {
       }
     })
     .catch((err) => {
-      let error;
-      if (err.statusCode) {
-        error = err;
-      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
-        error = new ValidationError(err.message || validationErrorMessage);
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        next(new ValidationError(err.message || validationErrorMessage));
       } else {
-        error = new DefaultError(defaultErrorMessage);
+        next(err);
       }
-      next(error);
     });
 };
 
@@ -165,12 +153,6 @@ module.exports.login = (req, res, next) => {
       });
     })
     .catch((err) => {
-      let error;
-      if (err.statusCode) {
-        error = err;
-      } else {
-        error = new DefaultError(defaultErrorMessage);
-      }
-      next(error);
+      next(err);
     });
 };
